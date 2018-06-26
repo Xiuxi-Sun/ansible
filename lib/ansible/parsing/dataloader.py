@@ -135,8 +135,10 @@ class DataLoader:
         show_content = False
         return b_data, show_content
 
-    def _get_if_azure_keyvault_data(self, data, b_file_name=None):
+    def _get_if_azure_keyvault_data(self, data, show_content, b_file_name=None):
         '''Get secret value if azure key vault'''
+        display.warning("data is {0}".format(data))
+        display.warning("is  keyvault: {0}".format(is_azure_keyvault_secret(data)))
         if is_azure_keyvault_secret(data):
             secret_value = get_azure_keyvault_secret(data)
             show_content = False
@@ -170,8 +172,8 @@ class DataLoader:
         try:
             with open(b_file_name, 'rb') as f:
                 data = f.read()
-                result = self._decrypt_if_vault_data(data, b_file_name)
-                return self._get_if_azure_keyvault_data(result, b_file_name)
+                (result, show_content) = self._decrypt_if_vault_data(data, b_file_name)
+                return self._get_if_azure_keyvault_data(result, show_content, b_file_name)
         except (IOError, OSError) as e:
             raise AnsibleParserError("an error occurred while trying to read the file '%s': %s" % (file_name, to_native(e)), orig_exc=e)
 
