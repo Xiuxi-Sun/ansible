@@ -17,6 +17,8 @@ from ansible.module_utils._text import to_native
 from ansible.parsing.yaml.loader import AnsibleLoader
 from ansible.parsing.yaml.objects import AnsibleBaseYAMLObject
 from ansible.parsing.ajson import AnsibleJSONDecoder
+from ansible.utils.display import Display
+display=Display()
 
 
 __all__ = ('from_yaml',)
@@ -67,11 +69,13 @@ def from_yaml(data, file_name='<string>', show_content=True, vault_secrets=None)
 
         # we first try to load this data as JSON.
         # Fixes issues with extra vars json strings not being parsed correctly by the yaml parser
+        display.warning("data input to yaml is {0}".format(data))
         new_data = json.loads(data, cls=AnsibleJSONDecoder)
     except Exception:
         # must not be JSON, let the rest try
         try:
             new_data = _safe_load(data, file_name=file_name, vault_secrets=vault_secrets)
+            display.warning("new data is {0}".format(new_data))
         except YAMLError as yaml_exc:
             _handle_error(yaml_exc, file_name, show_content)
 

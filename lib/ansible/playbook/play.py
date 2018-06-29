@@ -107,6 +107,7 @@ class Play(Base, Taggable, Become):
                 data['name'] = ','.join(data['hosts'])
             else:
                 data['name'] = data['hosts']
+        display.warning("data in play is; {0}".format(data))
         p = Play()
         if vars:
             p.vars = vars.copy()

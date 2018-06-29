@@ -219,6 +219,7 @@ class FieldAttributeBase(with_metaclass(BaseMeta, object)):
         for name, attr in sorted(iteritems(self._valid_attrs), key=operator.itemgetter(1)):
             # copy the value over unless a _load_field method is defined
             target_name = name
+            #display.warning("target_name is: {0}".format(target_name))
             if name in self._alias_attrs:
                 target_name = self._alias_attrs[name]
             if name in ds:
@@ -228,6 +229,7 @@ class FieldAttributeBase(with_metaclass(BaseMeta, object)):
                 else:
                     self._attributes[target_name] = ds[name]
 
+            #display.warning("target_name value is: {0}".format(self._attributes[target_name]))
         # run early, non-critical validation
         self.validate()
 

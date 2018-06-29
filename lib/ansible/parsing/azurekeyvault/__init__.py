@@ -56,7 +56,7 @@ def is_azure_keyvault_secret(data):
     except (UnicodeError, TypeError):
         return False
     
-    if text_data.startswith('$AZURE_KV:'):
+    if "$AZURE_KV:" in text_data:
         return True
     return False
 

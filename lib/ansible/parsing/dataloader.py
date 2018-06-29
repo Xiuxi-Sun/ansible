@@ -79,7 +79,7 @@ class DataLoader:
         ''' Loads data from a file, which can contain either JSON or YAML.  '''
 
         file_name = self.path_dwim(file_name)
-        display.debug("Loading data from %s" % file_name)
+        display.warning("Loading data from %s" % file_name)
 
         # if the file has already been read in and cached, we'll
         # return those results to avoid more file/vault operations
@@ -91,15 +91,48 @@ class DataLoader:
 
             file_data = to_text(b_file_data, errors='surrogate_or_strict')
             parsed_data = self.load(data=file_data, file_name=file_name, show_content=show_content)
+            
+            display.warning("parse data is: {0}".format(parsed_data))
+            #for key in parsed_data.keys():
+            #    if parsed_data[key].startsWith('$AZURE_KV:'):
+            #        parsed_data[key] = 'valueinkeyvault'
 
             # cache the file contents for next time
             self._FILE_CACHE[file_name] = parsed_data
+
+        new_data = self.parse_azure_keyvault(parsed_data)
+        display.warning("after rerplace, parsed_data is: {0}".format(new_data))
 
         if unsafe:
             return parsed_data
         else:
             # return a deep copy here, so the cache is not affected
             return copy.deepcopy(parsed_data)
+
+
+    def parse_azure_keyvault(self, parsed_data):
+        if isinstance(parsed_data, str) or isinstance(parsed_data, unicode):
+#            display.warning("data is str or unicode: {0}".format(parsed_data))
+            if "AZURE_KV" in parsed_data:
+#                display.warning("item  found key vault in {0}".format(parsed_data))
+                return "foundfoundfoundfoundfound"
+
+        elif isinstance(parsed_data, list):
+#            display.warning("parsed_data is list")
+            # display.warning("parsed_data is list: {0}".format(parsed_data))
+            for index, item in enumerate(parsed_data):
+                parsed_data[index] = self.parse_azure_keyvault(item)
+
+                display.warning("item in list after replace: {0}".format(parsed_data[index]))
+            return parsed_data
+        elif isinstance(parsed_data, dict):
+#            display.warning("parsed_data is dict {0}".format(parsed_data))
+
+            for key in parsed_data.keys():
+#                display.warning("item key is: {0}".format(parsed_data[key]))
+                parsed_data[key] = self.parse_azure_keyvault(parsed_data[key])
+                display.warning("key, value: {0}, {1}".format(key, parsed_data[key]))
+            return parsed_data
 
     def path_exists(self, path):
         path = self.path_dwim(path)
@@ -172,6 +205,7 @@ class DataLoader:
         try:
             with open(b_file_name, 'rb') as f:
                 data = f.read()
+                display.warning("data in getfilecontent is:{0}".format(data))
                 (result, show_content) = self._decrypt_if_vault_data(data, b_file_name)
                 return self._get_if_azure_keyvault_data(result, show_content, b_file_name)
         except (IOError, OSError) as e:
