@@ -58,7 +58,7 @@ def get_if_azure_keyvault_secret(data):
     if is_azure_keyvault_secret(data):
 
         tempdata = parse_azure_keyvault_envelope(data)
-        token = acquire_azure_keyvault_access_token_from_MSI()
+        token = acquire_azure_keyvault_access_token_from_MSI(tempdata[0])
 
         return get_secret(token, tempdata[0], tempdata[1], tempdata[2])
 
@@ -86,10 +86,11 @@ def parse_azure_keyvault_envelope(vaulttext_envelope):
 
     tempsecret = secret.split('/')
 
+    # return vault_uri, secret_name, secret_version
     return vault_uri, tempsecret[0], tempsecret[1]
 
 def acquire_azure_keyvault_access_token_from_MSI(vault_uri):
-    token_params {
+    token_params = {
         'api-version': '2018-02-01',
         'resource': AZURE_VAULT_RESOURCE_URI
     }

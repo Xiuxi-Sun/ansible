@@ -149,7 +149,7 @@ class DataLoader:
     #            display.warning("data is str or unicode: {0}".format(parsed_data))
             if is_azure_keyvault_secret(data):
     #                display.warning("item  found key vault in {0}".format(parsed_data))
-                return get_if_azure_keyvault_secret(data, show_content)
+                return get_if_azure_keyvault_secret(data)
 
         elif isinstance(data, list):
     #            display.warning("parsed_data is list")
@@ -165,7 +165,7 @@ class DataLoader:
             for key in data.keys():
     #               display.warning("item key is: {0}".format(parsed_data[key]))
                 data[key] = self._get_azure_keyvault_secret(data[key])
-                display.warning("key, value: {0}, {1}".format(key, data[key]))
+                #display.warning("key, value: {0}, {1}".format(key, data[key]))
 
         return data
 
@@ -195,8 +195,7 @@ class DataLoader:
             with open(b_file_name, 'rb') as f:
                 data = f.read()
                 display.warning("data in getfilecontent is:{0}".format(data))
-                (result, show_content) = self._decrypt_if_vault_data(data, b_file_name)
-                return self._get_if_azure_keyvault_data(result, show_content, b_file_name)
+                return self._decrypt_if_vault_data(data, b_file_name)
         except (IOError, OSError) as e:
             raise AnsibleParserError("an error occurred while trying to read the file '%s': %s" % (file_name, to_native(e)), orig_exc=e)
 
