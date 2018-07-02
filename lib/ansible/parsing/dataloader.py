@@ -17,7 +17,7 @@ from ansible.errors import AnsibleFileNotFound, AnsibleParserError
 from ansible.module_utils.basic import is_executable
 from ansible.module_utils.six import binary_type, text_type
 from ansible.module_utils._text import to_bytes, to_native, to_text
-from ansible.parsing.azurekeyvault import is_azure_keyvault_secret, get_azure_keyvault_secret
+from ansible.parsing.azurekeyvault import is_azure_keyvault_secret, get_if_azure_keyvault_secret
 from ansible.parsing.quoting import unquote
 from ansible.parsing.utils.yaml import from_yaml
 from ansible.parsing.vault import VaultLib, b_HEADER, is_encrypted, is_encrypted_file, parse_vaulttext_envelope
@@ -93,11 +93,10 @@ class DataLoader:
             parsed_data = self.load(data=file_data, file_name=file_name, show_content=show_content)
             
             display.warning("parse data is: {0}".format(parsed_data))
-            #for key in parsed_data.keys():
-            #    if parsed_data[key].startsWith('$AZURE_KV:'):
-            #        parsed_data[key] = 'valueinkeyvault'
 
             # cache the file contents for next time
+            parsed_data = self._get_azure_keyvault_secret(parsed_data)
+            display.warning("parse data after keyvault is: {0}".format(parsed_data))
             self._FILE_CACHE[file_name] = parsed_data
 
 #        new_data = self.parse_azure_keyvault(parsed_data)
@@ -108,31 +107,6 @@ class DataLoader:
         else:
             # return a deep copy here, so the cache is not affected
             return copy.deepcopy(parsed_data)
-
-
-    def parse_azure_keyvault(self, parsed_data):
-        if isinstance(parsed_data, str) or isinstance(parsed_data, unicode):
-#            display.warning("data is str or unicode: {0}".format(parsed_data))
-            if "AZURE_KV" in parsed_data:
-#                display.warning("item  found key vault in {0}".format(parsed_data))
-                return "foundfoundfoundfoundfound"
-
-        elif isinstance(parsed_data, list):
-#            display.warning("parsed_data is list")
-            # display.warning("parsed_data is list: {0}".format(parsed_data))
-            for index, item in enumerate(parsed_data):
-                parsed_data[index] = self.parse_azure_keyvault(item)
-
-                display.warning("item in list after replace: {0}".format(parsed_data[index]))
-            return parsed_data
-        elif isinstance(parsed_data, dict):
-#            display.warning("parsed_data is dict {0}".format(parsed_data))
-
-            for key in parsed_data.keys():
-#                display.warning("item key is: {0}".format(parsed_data[key]))
-                parsed_data[key] = self.parse_azure_keyvault(parsed_data[key])
-                display.warning("key, value: {0}, {1}".format(key, parsed_data[key]))
-            return parsed_data
 
     def path_exists(self, path):
         path = self.path_dwim(path)
@@ -166,19 +140,34 @@ class DataLoader:
         b_data = self._vault.decrypt(b_vault_data, filename=b_file_name)
 
         show_content = False
-        return b_data, show_content
+        return b_data, show_contents
 
-    def _get_if_azure_keyvault_data(self, data, show_content, b_file_name=None):
-        '''Get secret value if azure key vault'''
-        display.warning("data is {0}".format(data))
-        display.warning("is  keyvault: {0}".format(is_azure_keyvault_secret(data)))
-        if is_azure_keyvault_secret(data):
-            secret_value = get_azure_keyvault_secret(data)
-            show_content = False
+    def _get_azure_keyvault_secret(self, parsed_data):
+        data = copy.deepcopy(parsed_data)
 
-            return secret_value, show_content
+        if isinstance(data, str) or isinstance(data, unicode):
+    #            display.warning("data is str or unicode: {0}".format(parsed_data))
+            if is_azure_keyvault_secret(data):
+    #                display.warning("item  found key vault in {0}".format(parsed_data))
+                return get_if_azure_keyvault_secret(data, show_content)
 
-        return data, show_content 
+        elif isinstance(data, list):
+    #            display.warning("parsed_data is list")
+                # display.warning("parsed_data is list: {0}".format(parsed_data))
+            for index, item in enumerate(data):
+                data[index] = self._get_azure_keyvault_secret(item)
+
+                display.warning("item in list after replace: {0}".format(data[index]))
+
+        elif isinstance(data, dict):
+    #            display.warning("parsed_data is dict {0}".format(parsed_data))
+
+            for key in data.keys():
+    #               display.warning("item key is: {0}".format(parsed_data[key]))
+                data[key] = self._get_azure_keyvault_secret(data[key])
+                display.warning("key, value: {0}, {1}".format(key, data[key]))
+
+        return data
 
     def _get_file_contents(self, file_name):
         '''

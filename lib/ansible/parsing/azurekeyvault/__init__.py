@@ -17,6 +17,7 @@
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
+import copy
 import os
 import random
 import shlex
@@ -46,6 +47,19 @@ except ImportError:
     from ansible.utils.display import Display
     display = Display()
 
+def get_if_azure_keyvault_secret(data):
+    '''Get secret value if azure key vault'''
+    display.warning("data is {0}".format(data))
+    display.warning("is  keyvault: {0}".format(is_azure_keyvault_secret(data)))
+    if is_azure_keyvault_secret(data):
+
+        tempdata = parse_azure_keyvault_envelope(data)
+        token = acquire_azure_keyvault_access_token()
+
+        return get_secret(token, tempdata[0], tempdata[1], tempdata[2])
+
+    return data
+
 def is_azure_keyvault_secret(data):
     """ Test if this is azure key vault data blob
         :arg data: a byte or text string
@@ -55,8 +69,8 @@ def is_azure_keyvault_secret(data):
         text_data = to_text(data, encoding='utf-8')
     except (UnicodeError, TypeError):
         return False
-    
-    if "$AZURE_KV:" in text_data:
+
+    if text_data.startswith('$AZURE_KV:'):
         return True
     return False
 
