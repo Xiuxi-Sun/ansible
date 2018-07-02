@@ -106,6 +106,8 @@ class Playbook:
                 entry_obj = Play.load(entry, variable_manager=variable_manager, loader=self._loader, vars=vars)
                 self._entries.append(entry_obj)
 
+        for e in ds:
+            display.warning("ds in playbook init {0}".format(e))
         # we're done, so restore the old basedir in the loader
         self._loader.set_basedir(cur_basedir)
 

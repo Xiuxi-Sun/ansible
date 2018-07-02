@@ -100,8 +100,8 @@ class DataLoader:
             # cache the file contents for next time
             self._FILE_CACHE[file_name] = parsed_data
 
-        new_data = self.parse_azure_keyvault(parsed_data)
-        display.warning("after rerplace, parsed_data is: {0}".format(new_data))
+#        new_data = self.parse_azure_keyvault(parsed_data)
+#        display.warning("after rerplace, parsed_data is: {0}".format(new_data))
 
         if unsafe:
             return parsed_data
