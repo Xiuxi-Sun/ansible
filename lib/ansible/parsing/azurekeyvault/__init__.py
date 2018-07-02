@@ -20,6 +20,7 @@ __metaclass__ = type
 import copy
 import os
 import random
+import requests
 import shlex
 import shutil
 import subprocess
@@ -47,6 +48,9 @@ except ImportError:
     from ansible.utils.display import Display
     display = Display()
 
+MSI_ENDPOINT = 'http://169.254.169.254/metadata/identity/oauth2/token'
+AZURE_VAULT_RESOURCE_URI = 'https://vault.azure.net'
+
 def get_if_azure_keyvault_secret(data):
     '''Get secret value if azure key vault'''
     display.warning("data is {0}".format(data))
@@ -54,7 +58,7 @@ def get_if_azure_keyvault_secret(data):
     if is_azure_keyvault_secret(data):
 
         tempdata = parse_azure_keyvault_envelope(data)
-        token = acquire_azure_keyvault_access_token()
+        token = acquire_azure_keyvault_access_token_from_MSI()
 
         return get_secret(token, tempdata[0], tempdata[1], tempdata[2])
 
@@ -84,14 +88,27 @@ def parse_azure_keyvault_envelope(vaulttext_envelope):
 
     return vault_uri, tempsecret[0], tempsecret[1]
 
-def acquire_azure_keyvault_access_token():
-    return ''
+def acquire_azure_keyvault_access_token_from_MSI(vault_uri):
+    token_params {
+        'api-version': '2018-02-01',
+        'resource': AZURE_VAULT_RESOURCE_URI
+    }
+    token_headers = { 'Metadata': 'true'}
 
-def get_secret(token, vaulturi, secret_name, secret_version):
+    try:
+        token_res = requests.get(MSI_ENDPOINT, params=token_params, headers=token_headers)
+        token = token_res.json()["access_token"]
+        token_type = token_res.json()["token_type"]
+        return token_type, token
+    except requests.exceptions.RequestException as e:
+        display.warning("Unable to fetch MSI token. {0}".format(e))
+    return None
+
+def get_secret(token, vault_uri, secret_name, secret_version):
 
     try:
         client = KeyVaultClient(KeyVaultAuthentication(token))
-        secret_bundle = client.get_secret(vaulturi, secret_name, secret_version)
+        secret_bundle = client.get_secret(vault_uri, secret_name, secret_version)
 
         if secret_bundle:
             return secret_bundle.value
@@ -99,12 +116,6 @@ def get_secret(token, vaulturi, secret_name, secret_version):
         raise AnsibleError("Failed to get secret from Azure Key Vault: {0}".format(str(e)))
 
     return None
-
-def get_azure_keyvault_secret(data):
-    tempdata = parse_azure_keyvault_envelope(data)
-    token = acquire_azure_keyvault_access_token()
-
-    return get_secret(token, tempdata[0], tempdata[1], tempdata[2])
 
 
 
