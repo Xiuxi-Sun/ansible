@@ -58,9 +58,8 @@ def get_if_azure_keyvault_secret(data):
     if is_azure_keyvault_secret(data):
 
         tempdata = parse_azure_keyvault_envelope(data)
-        token = acquire_azure_keyvault_access_token_from_MSI(tempdata[0])
 
-        return get_secret(token, tempdata[0], tempdata[1], tempdata[2])
+        return get_secret(tempdata[0], tempdata[1], tempdata[2])
 
     return data
 
@@ -74,12 +73,13 @@ def is_azure_keyvault_secret(data):
     except (UnicodeError, TypeError):
         return False
 
-    if text_data.startswith('$AZURE_KV:'):
+    if text_data.startswith("!AZURE_KV;"):
         return True
     return False
 
 def parse_azure_keyvault_envelope(vaulttext_envelope):
     tempdata = vaulttext_envelope.strip().split(';')
+    display.warning("temp data is: {0}".format(tempdata))
 
     vault_uri = tempdata[1]
     secret = tempdata[2]
@@ -87,7 +87,7 @@ def parse_azure_keyvault_envelope(vaulttext_envelope):
     tempsecret = secret.split('/')
 
     # return vault_uri, secret_name, secret_version
-    return vault_uri, tempsecret[0], tempsecret[1]
+    return vault_uri, tempsecret[0], tempsecret[1] if len(tempsecret) > 1 else ''
 
 def acquire_azure_keyvault_access_token_from_MSI(vault_uri):
     token_params = {
@@ -105,10 +105,11 @@ def acquire_azure_keyvault_access_token_from_MSI(vault_uri):
         display.warning("Unable to fetch MSI token. {0}".format(e))
     return None
 
-def get_secret(token, vault_uri, secret_name, secret_version):
+def get_secret(vault_uri, secret_name, secret_version):
 
     try:
-        client = KeyVaultClient(KeyVaultAuthentication(token))
+        client = get_client()
+        display.warning("uri {0} secert {1} version {2}".format(vault_uri, secret_name, secret_version))
         secret_bundle = client.get_secret(vault_uri, secret_name, secret_version)
 
         if secret_bundle:
@@ -119,4 +120,22 @@ def get_secret(token, vault_uri, secret_name, secret_version):
     return None
 
 
+def get_client():
+    def get_token_from_MSI(server, resource, scope):
+        token_params = {
+            'api-version': '2018-02-01',
+            'resource': AZURE_VAULT_RESOURCE_URI
+        }
+        token_headers = { 'Metadata': 'true'}
+
+        try:
+            token_res = requests.get(MSI_ENDPOINT, params=token_params, headers=token_headers)
+            token = token_res.json()["access_token"]
+            token_type = token_res.json()["token_type"]
+            return token_type, token
+        except requests.exceptions.RequestException as e:
+            display.warning("Unable to fetch MSI token. {0}".format(e))
+        return None
+    
+    return KeyVaultClient(KeyVaultAuthentication(get_token_from_MSI))
 

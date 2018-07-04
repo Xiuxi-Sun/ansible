@@ -658,6 +658,7 @@ class VaultLib:
         :returns: a byte string containing the decrypted data and the vault-id that was used
 
         '''
+        display.warning("in  line  661, decrypt {0}".format(vaulttext))
         plaintext, vault_id, vault_secret = self.decrypt_and_get_vault_id(vaulttext, filename=filename)
         return plaintext
 
@@ -952,6 +953,7 @@ class VaultEditor:
         try:
             # vaulttext gets converted back to bytes, but alas
             # TODO: return the vault_id that worked?
+            display.warning("in line 955, {0}".format(vaulttext))
             plaintext, vault_id_used, vault_secret_used = self.vault.decrypt_and_get_vault_id(vaulttext)
         except AnsibleError as e:
             raise AnsibleError("%s for %s" % (to_bytes(e), to_bytes(filename)))
@@ -997,6 +999,7 @@ class VaultEditor:
 
         display.vvvvv('Rekeying file "%s" to with new vault-id "%s" and vault secret %s' %
                       (filename, new_vault_id, new_vault_secret))
+        display.warning("in line 1001 {0}".format(vaulttext))
         try:
             plaintext, vault_id_used, _dummy = self.vault.decrypt_and_get_vault_id(vaulttext)
         except AnsibleError as e:

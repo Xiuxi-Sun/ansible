@@ -47,6 +47,7 @@ def _safe_load(stream, file_name=None, vault_secrets=None):
     ''' Implements yaml.safe_load(), except using our custom loader class. '''
 
     loader = AnsibleLoader(stream, file_name, vault_secrets)
+    display.warning("load is {0}".format(loader.__class__.__name__))
     try:
         return loader.get_single_data()
     finally:
@@ -73,6 +74,7 @@ def from_yaml(data, file_name='<string>', show_content=True, vault_secrets=None)
         new_data = json.loads(data, cls=AnsibleJSONDecoder)
     except Exception:
         # must not be JSON, let the rest try
+        display.warning("in except:")
         try:
             new_data = _safe_load(data, file_name=file_name, vault_secrets=vault_secrets)
             display.warning("new data is {0}".format(new_data))

@@ -88,6 +88,7 @@ class DataLoader:
         else:
             # read the file contents and load the data structure from them
             (b_file_data, show_content) = self._get_file_contents(file_name)
+            display.warning("after  get file c ontent: {0}".format(b_file_data))
 
             file_data = to_text(b_file_data, errors='surrogate_or_strict')
             parsed_data = self.load(data=file_data, file_name=file_name, show_content=show_content)
@@ -95,8 +96,8 @@ class DataLoader:
             display.warning("parse data is: {0}".format(parsed_data))
 
             # cache the file contents for next time
-            parsed_data = self._get_azure_keyvault_secret(parsed_data)
-            display.warning("parse data after keyvault is: {0}".format(parsed_data))
+#            parsed_data = self._get_azure_keyvault_secret(copy.deepcopy(parsed_data))
+#            display.warning("parse data after keyvault is: {0}".format(parsed_data))
             self._FILE_CACHE[file_name] = parsed_data
 
 #        new_data = self.parse_azure_keyvault(parsed_data)
@@ -131,8 +132,9 @@ class DataLoader:
 
     def _decrypt_if_vault_data(self, b_vault_data, b_file_name=None):
         '''Decrypt b_vault_data if encrypted and return b_data and the show_content flag'''
-
+        display.warning("in line 132 {0}".format(b_vault_data))
         if not is_encrypted(b_vault_data):
+            display.warning("not encrypted")
             show_content = True
             return b_vault_data, show_content
 
@@ -142,17 +144,18 @@ class DataLoader:
         show_content = False
         return b_data, show_contents
 
-    def _get_azure_keyvault_secret(self, parsed_data):
-        data = copy.deepcopy(parsed_data)
+    def _get_azure_keyvault_secret(self, data):
+        #data = copy.deepcopy(parsed_data)
+        display.warning("data to get_azure_keyvault_secret is: {0}".format(to_text(data)))
 
         if isinstance(data, str) or isinstance(data, unicode):
-    #            display.warning("data is str or unicode: {0}".format(parsed_data))
+            display.warning("data is str or unicode: {0}".format(data))
             if is_azure_keyvault_secret(data):
     #                display.warning("item  found key vault in {0}".format(parsed_data))
                 return get_if_azure_keyvault_secret(data)
 
         elif isinstance(data, list):
-    #            display.warning("parsed_data is list")
+            display.warning("parsed_data is list")
                 # display.warning("parsed_data is list: {0}".format(parsed_data))
             for index, item in enumerate(data):
                 data[index] = self._get_azure_keyvault_secret(item)
@@ -160,12 +163,12 @@ class DataLoader:
                 display.warning("item in list after replace: {0}".format(data[index]))
 
         elif isinstance(data, dict):
-    #            display.warning("parsed_data is dict {0}".format(parsed_data))
+            display.warning("parsed_data is dict {0}".format(data))
 
             for key in data.keys():
-    #               display.warning("item key is: {0}".format(parsed_data[key]))
+                display.warning("item key is: {0}: {1}".format(key, data[key]))
                 data[key] = self._get_azure_keyvault_secret(data[key])
-                #display.warning("key, value: {0}, {1}".format(key, data[key]))
+                display.warning("key, value: {0}, {1}".format(key, data[key]))
 
         return data
 
@@ -395,7 +398,9 @@ class DataLoader:
                     # Limit how much of the file is read since we do not know
                     # whether this is a vault file and therefore it could be very
                     # large.
+                    display.warning("in line 398 {0}".format(real_path))
                     if is_encrypted_file(f, count=len(b_HEADER)):
+                        display.warning("in line 400 {0}".format(real_path))
                         # if the file is encrypted and no password was specified,
                         # the decrypt call would throw an error, but we check first
                         # since the decrypt function doesn't know the file name
