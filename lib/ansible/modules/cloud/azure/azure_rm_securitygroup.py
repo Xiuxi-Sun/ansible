@@ -446,20 +446,21 @@ def create_rule_instance(self, rule):
         provisioning_state=rule.get('provisioning_state', None),
         name=rule.get('name', None),
         etag=rule.get('etag', None)
-    ) if self.api_profile == 'latest' else self.nsg_models.SecurityRule(
-        description=rule.get('description', None),
-        protocol=rule.get('protocol', None),
-        source_port_range=rule.get('source_port_range', None),
-        destination_port_range=rule.get('destination_port_range', None),
-        source_address_prefix=rule.get('source_address_prefix', None),
-        destination_address_prefix=rule.get('destination_address_prefix', None),
-        access=rule.get('access', None),
-        priority=rule.get('priority', None),
-        direction=rule.get('direction', None),
-        provisioning_state=rule.get('provisioning_state', None),
-        name=rule.get('name', None),
-        etag=rule.get('etag', None)
-    ) if self.api_profile == '2017-03-09-profile' else None
+    )
+    # ) if self.api_profile == 'latest' else self.nsg_models.SecurityRule(
+    #     description=rule.get('description', None),
+    #     protocol=rule.get('protocol', None),
+    #     source_port_range=rule.get('source_port_range', None),
+    #     destination_port_range=rule.get('destination_port_range', None),
+    #     source_address_prefix=rule.get('source_address_prefix', None),
+    #     destination_address_prefix=rule.get('destination_address_prefix', None),
+    #     access=rule.get('access', None),
+    #     priority=rule.get('priority', None),
+    #     direction=rule.get('direction', None),
+    #     provisioning_state=rule.get('provisioning_state', None),
+    #     name=rule.get('name', None),
+    #     etag=rule.get('etag', None)
+    # ) if self.api_profile == '2017-03-09-profile' else None
 
 
 def create_rule_dict_from_obj(rule):

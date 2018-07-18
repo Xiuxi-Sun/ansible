@@ -1004,7 +1004,7 @@ class AzureRMModuleBase(object):
     @property
     def network_models(self):
         self.log("Getting network models...")
-        return NetworkManagementClient.models(AZURE_API_PROFILES[self.api_profile]['NetworkManagementClient'])
+        return NetworkManagementClient.models(AZURE_API_PROFILES['latest']['NetworkManagementClient'])
 
     @property
     def rm_client(self):
