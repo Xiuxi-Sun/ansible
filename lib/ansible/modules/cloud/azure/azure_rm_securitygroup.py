@@ -446,24 +446,23 @@ def create_rule_instance(self, rule):
         provisioning_state=rule.get('provisioning_state', None),
         name=rule.get('name', None),
         etag=rule.get('etag', None)
-    )
-    # ) if self.api_profile == 'latest' else self.nsg_models.SecurityRule(
-    #     description=rule.get('description', None),
-    #     protocol=rule.get('protocol', None),
-    #     source_port_range=rule.get('source_port_range', None),
-    #     destination_port_range=rule.get('destination_port_range', None),
-    #     source_address_prefix=rule.get('source_address_prefix', None),
-    #     destination_address_prefix=rule.get('destination_address_prefix', None),
-    #     access=rule.get('access', None),
-    #     priority=rule.get('priority', None),
-    #     direction=rule.get('direction', None),
-    #     provisioning_state=rule.get('provisioning_state', None),
-    #     name=rule.get('name', None),
-    #     etag=rule.get('etag', None)
-    # ) if self.api_profile == '2017-03-09-profile' else None
+    ) if self.api_profile == 'latest' else self.nsg_models.SecurityRule(
+        description=rule.get('description', None),
+        protocol=rule.get('protocol', None),
+        source_port_range=rule.get('source_port_range', None),
+        destination_port_range=rule.get('destination_port_range', None),
+        source_address_prefix=rule.get('source_address_prefix', None),
+        destination_address_prefix=rule.get('destination_address_prefix', None),
+        access=rule.get('access', None),
+        priority=rule.get('priority', None),
+        direction=rule.get('direction', None),
+        provisioning_state=rule.get('provisioning_state', None),
+        name=rule.get('name', None),
+        etag=rule.get('etag', None)
+    ) if self.api_profile == '2017-03-09-profile' else None
 
 
-def create_rule_dict_from_obj(rule):
+def create_rule_dict_from_obj(self, rule):
     '''
     Create a dict from an instance of a SecurityRule.
 
@@ -488,10 +487,24 @@ def create_rule_dict_from_obj(rule):
         direction=rule.direction,
         provisioning_state=rule.provisioning_state,
         etag=rule.etag
-    )
+    ) if self.api_profile == 'latest' else dict(
+        id=rule.id,
+        name=rule.name,
+        description=rule.description,
+        protocol=rule.protocol,
+        source_port_range=rule.source_port_range,
+        destination_port_range=rule.destination_port_range,
+        source_address_prefix=rule.source_address_prefix,
+        destination_address_prefix=rule.destination_address_prefix,
+        access=rule.access,
+        priority=rule.priority,
+        direction=rule.direction,
+        provisioning_state=rule.provisioning_state,
+        etag=rule.etag
+    ) if self.api_profile == '2017-03-09-profile' else None
 
 
-def create_network_security_group_dict(nsg):
+def create_network_security_group_dict(self, nsg):
     results = dict(
         id=nsg.id,
         name=nsg.name,
@@ -502,12 +515,12 @@ def create_network_security_group_dict(nsg):
     results['rules'] = []
     if nsg.security_rules:
         for rule in nsg.security_rules:
-            results['rules'].append(create_rule_dict_from_obj(rule))
+            results['rules'].append(create_rule_dict_from_obj(self, rule))
 
     results['default_rules'] = []
     if nsg.default_security_rules:
         for rule in nsg.default_security_rules:
-            results['default_rules'].append(create_rule_dict_from_obj(rule))
+            results['default_rules'].append(create_rule_dict_from_obj(self, rule))
 
     results['network_interfaces'] = []
     if nsg.network_interfaces:
@@ -603,7 +616,7 @@ class AzureRMSecurityGroup(AzureRMModuleBase):
 
         try:
             nsg = self.network_client.network_security_groups.get(self.resource_group, self.name)
-            results = create_network_security_group_dict(nsg)
+            results = create_network_security_group_dict(self, nsg)
             self.log("Found security group:")
             self.log(results, pretty_print=True)
             self.check_provisioning_state(nsg, self.state)
@@ -696,7 +709,7 @@ class AzureRMSecurityGroup(AzureRMModuleBase):
             result = self.get_poller_result(poller)
         except CloudError as exc:
             self.fail("Error creating/updating security group {0} - {1}".format(self.name, str(exc)))
-        return create_network_security_group_dict(result)
+        return create_network_security_group_dict(self, result)
 
     def delete(self):
         try:
