@@ -92,11 +92,11 @@ install:
   - sudo apt-get update
   - sudo apt-get install -y libssl-dev libffi-dev python-dev python-pip
   - pip install pip --upgrade
-  - pip install ansible[azure]
+  - pip install ansible[azure]=2.5.5
   - mkdir ~/.azure
   - touch ~/.azure/credentials
   - printf "[default]\nsubscription_id=${subscriptionId}\nclient_id=${clientId}\nsecret=${secret}\ntenant=${tenant}" >> ~/.azure/credentials
-  - git clone https://github.com/VSChina/ansible.git
+  - git clone -b stable-2.5 https://github.com/VSChina/ansible.git
   - cd ansible
   - pip install virtualenv
   - virtualenv venv
@@ -104,7 +104,11 @@ install:
   - pip install packaging azure azure-cli
   - pip install -r requirements.txt
   - pip install -r packaging/requirements/requirements-azure.txt
-  - . hacking/env-setup
+  - . hacking/env-setup  
+  - ansible-galaxy install git+https://github.com/Azure/azure_preview_modules,integration-2018-07-10-03-38-56
+  - cp -fr /home/travis/build/Azure/azure_preview_modules/  /home/travis/.ansible/roles/azure_preview_modules/
+  - pip install -I -r /home/travis/.ansible/roles/azure_preview_modules/files/requirements-azure.txt
+
 script:
   - docker --version
   - scan_test
