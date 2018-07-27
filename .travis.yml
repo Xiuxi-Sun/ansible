@@ -106,7 +106,6 @@ install:
   - pip install -r packaging/requirements/requirements-azure.txt
   - . hacking/env-setup  
   - ansible-galaxy install git+https://github.com/Azure/azure_preview_modules,integration-2018-07-10-03-38-56
-  - cp -fr /home/travis/build/Azure/azure_preview_modules/  /home/travis/.ansible/roles/azure_preview_modules/
   - pip install -I -r /home/travis/.ansible/roles/azure_preview_modules/files/requirements-azure.txt
 
 script:
