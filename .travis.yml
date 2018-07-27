@@ -92,7 +92,7 @@ install:
   - sudo apt-get update
   - sudo apt-get install -y libssl-dev libffi-dev python-dev python-pip
   - pip install pip --upgrade
-  - pip install ansible[azure]=2.5.5
+  - pip install ansible[azure]==2.5.5
   - mkdir ~/.azure
   - touch ~/.azure/credentials
   - printf "[default]\nsubscription_id=${subscriptionId}\nclient_id=${clientId}\nsecret=${secret}\ntenant=${tenant}" >> ~/.azure/credentials
