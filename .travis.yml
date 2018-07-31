@@ -40,7 +40,7 @@ before_install:
       name=$1;
       ansible-playbook ../delete_resource_group.yml --extra-vars="name=$name";
     }
-  - "write_credential() { printf \"AZURE_CLIENT_ID: ${clientId}\nAZURE_SECRET: ${secret}\nAZURE_SUBSCRIPTION_ID: ${subscriptionId}\nAZURE_TENANT: ${tenant}\nRESOURCE_GROUP: $group_name\nRESOURCE_GROUP_SECONDARY: $group_name\" >> test/integration/cloud-config-azure.yml; }"
+  - "write_credential() { printf \"AZURE_CLIENT_ID: ${AZURE_CLIENT_ID}\nAZURE_SECRET: ${AZURE_SECRET}\nAZURE_SUBSCRIPTION_ID: ${AZURE_SUBSCRIPTION_ID}\nAZURE_TENANT: ${AZURE_TENANT}\nRESOURCE_GROUP: $group_name\nRESOURCE_GROUP_SECONDARY: $group_name\" >> test/integration/cloud-config-azure.yml; }"
   - run_test() {
       test_name=$1;
       group_name="asb-it-${test_name##azure_rm_}";
@@ -95,7 +95,7 @@ install:
   - pip install ansible[azure]==2.5.5
   - mkdir ~/.azure
   - touch ~/.azure/credentials
-  - printf "[default]\nsubscription_id=${subscriptionId}\nclient_id=${clientId}\nsecret=${secret}\ntenant=${tenant}" >> ~/.azure/credentials
+  - printf "[default]\nsubscription_id=${AZURE_SUBSCRIPTION_ID}\nclient_id=${AZURE_CLIENT_ID}\nsecret=${AZURE_SECRET}\ntenant=${AZURE_TENANT}" >> ~/.azure/credentials
   - git clone -b stable-2.5 https://github.com/VSChina/ansible.git
   - cd ansible
   - pip install virtualenv
