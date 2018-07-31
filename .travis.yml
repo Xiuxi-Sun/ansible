@@ -40,7 +40,7 @@ before_install:
       name=$1;
       ansible-playbook ../delete_resource_group.yml --extra-vars="name=$name";
     }
-  - "write_credential() { printf \"AZURE_CLIENT_ID: ${AZURE_CLIENT_ID}\nAZURE_SECRET: ${AZURE_SECRET}\nAZURE_SUBSCRIPTION_ID: ${AZURE_SUBSCRIPTION_ID}\nAZURE_TENANT: ${AZURE_TENANT}\nRESOURCE_GROUP: $group_name\nRESOURCE_GROUP_SECONDARY: $group_name\" >> test/integration/cloud-config-azure.yml; }"
+  - "write_credential() { printf \"AZURE_CLIENT_ID: ${clientId}\nAZURE_SECRET: ${secret}\nAZURE_SUBSCRIPTION_ID: ${subscriptionId}\nAZURE_TENANT: ${tenant}\nRESOURCE_GROUP: $group_name\nRESOURCE_GROUP_SECONDARY: $group_name\" >> test/integration/cloud-config-azure.yml; }"
   - run_test() {
       test_name=$1;
       group_name="asb-it-${test_name##azure_rm_}";
@@ -92,11 +92,11 @@ install:
   - sudo apt-get update
   - sudo apt-get install -y libssl-dev libffi-dev python-dev python-pip
   - pip install pip --upgrade
-  - pip install ansible[azure]==2.5.5
+  - pip install ansible[azure]
   - mkdir ~/.azure
   - touch ~/.azure/credentials
-  - printf "[default]\nsubscription_id=${AZURE_SUBSCRIPTION_ID}\nclient_id=${AZURE_CLIENT_ID}\nsecret=${AZURE_SECRET}\ntenant=${AZURE_TENANT}" >> ~/.azure/credentials
-  - git clone -b stable-2.5 https://github.com/VSChina/ansible.git
+  - printf "[default]\nsubscription_id=${subscriptionId}\nclient_id=${clientId}\nsecret=${secret}\ntenant=${tenant}" >> ~/.azure/credentials
+  - git clone https://github.com/VSChina/ansible.git
   - cd ansible
   - pip install virtualenv
   - virtualenv venv
@@ -104,12 +104,7 @@ install:
   - pip install packaging azure azure-cli
   - pip install -r requirements.txt
   - pip install -r packaging/requirements/requirements-azure.txt
-  - . hacking/env-setup  
-  - ansible-galaxy install git+https://github.com/Azure/azure_preview_modules,integration-2018-07-10-03-38-56
-  - pip install -I -r /home/travis/.ansible/roles/azure_preview_modules/files/requirements-azure.txt
-  - pip freeze
-  - ansible --version
-
+  - . hacking/env-setup
 script:
   - docker --version
   - scan_test
@@ -123,6 +118,5 @@ notifications:
       - zikalino@microsoft.com
       - yungez@microsoft.com
       - yaweiw@microsoft.com
-      - phoenix.zyg@gmail.com
     on_success: always
     on_failure: always
