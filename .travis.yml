@@ -34,16 +34,19 @@ env:
 before_install:
   - create_resource_group() {
       name=$1;
-      ansible-playbook ../create_resource_group.yml --extra-vars="name=$name";
+      name2=${name}2;
+      ansible-playbook ../create_resource_group.yml --extra-vars="name=$name name2=$name2";
     }
   - delete_resource_group() {
       name=$1;
-      ansible-playbook ../delete_resource_group.yml --extra-vars="name=$name";
+      name2=${name}2;
+      ansible-playbook ../delete_resource_group.yml --extra-vars="name=$name name2=$name2";
     }
-  - "write_credential() { printf \"AZURE_CLIENT_ID: ${AZURE_CLIENT_ID}\nAZURE_SECRET: ${AZURE_SECRET}\nAZURE_SUBSCRIPTION_ID: ${AZURE_SUBSCRIPTION_ID}\nAZURE_TENANT: ${AZURE_TENANT}\nRESOURCE_GROUP: $group_name\nRESOURCE_GROUP_SECONDARY: $group_name\" >> test/integration/cloud-config-azure.yml; }"
+  - "write_credential() { printf \"AZURE_CLIENT_ID: ${AZURE_CLIENT_ID}\nAZURE_SECRET: ${AZURE_SECRET}\nAZURE_SUBSCRIPTION_ID: ${AZURE_SUBSCRIPTION_ID}\nAZURE_TENANT: ${AZURE_TENANT}\nRESOURCE_GROUP: $group_name\nRESOURCE_GROUP_SECONDARY: $group_name_secondary\" >> test/integration/cloud-config-azure.yml; }"
   - run_test() {
       test_name=$1;
       group_name="asb-it-${test_name##azure_rm_}";
+      group_name_secondary=${group_name}2nd
       loop=1;
 
       while [ $loop -le $max_retry_count ]; do
