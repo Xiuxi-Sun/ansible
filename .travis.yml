@@ -46,7 +46,7 @@ before_install:
   - run_test() {
       test_name=$1;
       group_name="asb-it-${test_name##azure_rm_}";
-      group_name_secondary=${group_name}2nd
+      group_name_secondary="${group_name}2";
       loop=1;
 
       while [ $loop -le $max_retry_count ]; do
