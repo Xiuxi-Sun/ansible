@@ -228,6 +228,7 @@ class AzureRMCdnendpointFacts(AzureRMModuleBase):
         new_result['content_types_to_compress'] = cdnendpoint.content_types_to_compress
         new_result['origin_host_header'] = cdnendpoint.origin_host_header
         new_result['origin_path'] = cdnendpoint.origin_path
+        new_result['origin'] = cdnendpoint.origin
         new_result['tags'] = cdnendpoint.tags
         return new_result
 
