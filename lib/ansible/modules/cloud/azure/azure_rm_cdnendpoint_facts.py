@@ -231,7 +231,7 @@ class AzureRMCdnendpointFacts(AzureRMModuleBase):
         new_result['origin'] = dict(
             name=cdnendpoint.origins[0].name,
             host_name=cdnendpoint.origins[0].host_name,
-            http_port=cdnendpoint.origins[0].http_port
+            http_port=cdnendpoint.origins[0].http_port,
             https_port=cdnendpoint.origins[0].https_port
         )
         new_result['tags'] = cdnendpoint.tags
