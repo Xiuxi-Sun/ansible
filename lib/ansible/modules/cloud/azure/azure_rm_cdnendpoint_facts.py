@@ -193,7 +193,7 @@ class AzureRMCdnendpointFacts(AzureRMModuleBase):
         try:
             response = self.cdn_management_client.endpoints.list_by_profile(
                 self.resource_group, self.profile_name)
-        except AzureHttpError as exc:
+        except ErrorResponseException as exc:
             self.fail('Failed to list all items - {0}'.format(str(exc)))
 
         results = []
