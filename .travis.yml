@@ -97,14 +97,12 @@ install:
   - mkdir ~/.azure
   - touch ~/.azure/credentials
   - printf "[default]\nsubscription_id=${AZURE_SUBSCRIPTION_ID}\nclient_id=${AZURE_CLIENT_ID}\nsecret=${AZURE_SECRET}\ntenant=${AZURE_TENANT}" >> ~/.azure/credentials
-  - git clone https://github.com/VSChina/ansible.git
-  - cd ansible
   - pip install virtualenv
   - virtualenv venv
   - . venv/bin/activate
-  - pip install packaging azure azure-cli
-  - pip install -r requirements.txt
-  - pip install -r packaging/requirements/requirements-azure.txt
+  - pip install git+https://github.com/VSChina/ansible.git@devel
+  - wget -O requirement.txt https://raw.githubusercontent.com/VSChina/ansible/devel/packaging/requirements/requirements-azure.txt
+  - pip install -r requirement.txt
   - . hacking/env-setup
   - pip freeze
   - ansible --version
