@@ -94,8 +94,6 @@ before_install:
 install:
   - sudo apt-get update
   - sudo apt-get install -y libssl-dev libffi-dev python-dev python-pip
-  - pip install pip --upgrade
-  - pip install ansible[azure]
   - mkdir ~/.azure
   - touch ~/.azure/credentials
   - printf "[default]\nsubscription_id=${AZURE_SUBSCRIPTION_ID}\nclient_id=${AZURE_CLIENT_ID}\nsecret=${AZURE_SECRET}\ntenant=${AZURE_TENANT}" >> ~/.azure/credentials
