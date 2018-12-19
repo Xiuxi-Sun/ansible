@@ -54,7 +54,7 @@ before_install:
         echo Run test $test_name $loop time;
         
         create_resource_group $group_name;
-        rm test/integration/cloud-config-azure.yml;
+        rm test/integration/cloud-config-azure.yml 2>/dev/null;
         touch test/integration/cloud-config-azure.yml;
         write_credential;
         travis_wait 50 ansible-test integration $test_name --docker --color=yes;
