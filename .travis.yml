@@ -54,7 +54,7 @@ before_install:
         echo Run test $test_name $loop time;
         
         create_resource_group $group_name;
-        rm test/integration/cloud-config-azure.yml;
+        rm test/integration/cloud-config-azure.yml 2>/dev/null;
         touch test/integration/cloud-config-azure.yml;
         write_credential;
         travis_wait 50 ansible-test integration $test_name --docker --color=yes;
@@ -94,8 +94,6 @@ before_install:
 install:
   - sudo apt-get update
   - sudo apt-get install -y libssl-dev libffi-dev python-dev python-pip
-  - pip install pip --upgrade
-  - pip install ansible[azure]
   - mkdir ~/.azure
   - touch ~/.azure/credentials
   - printf "[default]\nsubscription_id=${AZURE_SUBSCRIPTION_ID}\nclient_id=${AZURE_CLIENT_ID}\nsecret=${AZURE_SECRET}\ntenant=${AZURE_TENANT}" >> ~/.azure/credentials
@@ -104,7 +102,7 @@ install:
   - pip install virtualenv
   - virtualenv venv
   - . venv/bin/activate
-  - pip install packaging azure azure-cli
+  - pip install .
   - pip install -r requirements.txt
   - pip install -r packaging/requirements/requirements-azure.txt
   - . hacking/env-setup
