@@ -54,8 +54,8 @@ author:
 EXAMPLES = '''
   - name: Create application security group
     azure_rm_applicationsecuritygroup:
-      resource_group: myRG
-      name: MyAsg
+      resource_group: myResourceGroup
+      name: myAsg
       location: eastus
       tags:
         foo: bar
@@ -67,7 +67,7 @@ id:
         - Resource id of the application security group.
     returned: always
     type: str
-    sample: /subscriptions/<subid>/resourceGroups/<resourcegroup>/providers/Microsoft.Network/applicationSecurityGroups/MyAsg
+    sample: /subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/myResourceGroup/providers/Microsoft.Network/applicationSecurityGroups/myAsg
 '''
 
 from ansible.module_utils.azure_rm_common import AzureRMModuleBase
