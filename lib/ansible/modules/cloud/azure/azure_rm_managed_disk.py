@@ -82,6 +82,14 @@ options:
             - To detach a disk from a vm, explicitly set to ''.
             - If this option is unset, the value will not be changed.
         version_added: 2.5
+    caching:
+        description:
+            - Disk caching policy.
+        choices:
+            - read_only
+            - read_write
+            - no
+        version_added: 2.8
     tags:
         description:
             - Tags to assign to the managed disk.
@@ -174,7 +182,8 @@ def managed_disk_to_dict(managed_disk):
         disk_size_gb=managed_disk.disk_size_gb,
         os_type=managed_disk.os_type.lower() if managed_disk.os_type else None,
         storage_account_type=managed_disk.sku.name if managed_disk.sku else None,
-        managed_by=managed_disk.managed_by
+        managed_by=managed_disk.managed_by,
+        caching=managed_disk.caching if managed_disk.caching else None
     )
 
 
@@ -220,6 +229,10 @@ class AzureRMManagedDisk(AzureRMModuleBase):
             ),
             managed_by=dict(
                 type='str'
+            ),
+            caching=dict(
+                type='str',
+                choices=['read_only', 'read_write', 'no']
             )
         )
         required_if = [
@@ -241,6 +254,7 @@ class AzureRMManagedDisk(AzureRMModuleBase):
         self.disk_size_gb = None
         self.tags = None
         self.managed_by = None
+        self.caching = None
         super(AzureRMManagedDisk, self).__init__(
             derived_arg_spec=self.module_arg_spec,
             required_if=required_if,
@@ -355,6 +369,15 @@ class AzureRMManagedDisk(AzureRMModuleBase):
         else:
             disk_params['os_type'] = None
         disk_params['creation_data'] = creation_data
+
+        if self.caching:
+            if self.caching == 'no':
+                disk_params['caching'] = 'None'
+            elif self.caching == 'read_only':
+                disk_params['caching'] = 'ReadOnly'
+            elif self.caching == 'read_write':
+                disk_params['caching'] = 'ReadWrite'
+
         return disk_params
 
     def create_or_update_managed_disk(self, parameter):

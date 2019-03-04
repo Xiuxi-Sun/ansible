@@ -87,6 +87,7 @@
        storage_account_type: "Standard_LRS"
        disk_size_gb: 1
        os_type: windows
+       caching: read_only
    register: win
 
  - name: Assert status of os_type specified at creation
