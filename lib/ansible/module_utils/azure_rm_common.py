@@ -170,6 +170,8 @@ try:
     from azure.mgmt.containerinstance import ContainerInstanceManagementClient
     from azure.mgmt.loganalytics import LogAnalyticsManagementClient
     import azure.mgmt.loganalytics.models as LogAnalyticsModels
+    from azure.mgmt.iothub import IotHubClient
+    from azure.mgmt.iothub import models as IoTHubModels
 except ImportError as exc:
     HAS_AZURE_EXC = traceback.format_exc()
     HAS_AZURE = False
@@ -308,6 +310,7 @@ class AzureRMModuleBase(object):
         self._resource = None
         self._log_analytics_client = None
         self._servicebus_client = None
+        self._IoThub_client = None
 
         self.check_mode = self.module.check_mode
         self.api_profile = self.module.params.get('api_profile')
@@ -1004,6 +1007,18 @@ class AzureRMModuleBase(object):
     @property
     def servicebus_models(self):
         return ServicebusModel
+
+    @property
+    def IoThub_client(self):
+        self.log('Getting iothub client')
+        if not self._IoThub_client:
+            self._IoThub_client = self.get_mgmt_svc_client(IotHubClient,
+                                                           base_url=self._cloud_environment.endpoints.resource_manager)
+        return self._IoThub_client
+
+    @property
+    def IoThub_models(self):
+        return IoTHubModels
 
 
 class AzureRMAuthException(Exception):
