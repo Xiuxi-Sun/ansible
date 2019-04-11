@@ -813,9 +813,9 @@ class AzureRMModuleBase(object):
         sign_key = '{0}\n{1}'.format(url, ttl)
         signature = b64encode(HMAC(b64decode(key), sign_key.encode('utf-8'), sha256).digest())
         result = {
-          'sr': url,
-          'sig': signature,
-          'se': str(ttl),
+            'sr': url,
+            'sig': signature,
+            'se': str(ttl),
         }
         if policy:
             result['skn'] = policy
@@ -1063,6 +1063,7 @@ class AzureRMModuleBase(object):
     def IoThub_models(self):
         return IoTHubModels
 
+
 class AzureSASAuthentication(Authentication):
     """Simple SAS Authentication.
     An implementation of Authentication in
@@ -1077,6 +1078,7 @@ class AzureSASAuthentication(Authentication):
         session = super(AzureSASAuthentication, self).signed_session()
         session.headers['Authorization'] = self.token
         return session
+
 
 class AzureRMAuthException(Exception):
     pass
