@@ -70,7 +70,8 @@ AZURE_API_PROFILES = {
         'WebSiteManagementClient': '2018-02-01',
         'PostgreSQLManagementClient': '2017-12-01',
         'MySQLManagementClient': '2017-12-01',
-        'MariaDBManagementClient': '2019-03-01'
+        'MariaDBManagementClient': '2019-03-01',
+        'EventHubManagementClient': '2017-04-01'
     },
 
     '2017-03-09-profile': {
@@ -170,6 +171,7 @@ try:
     from azure.mgmt.containerinstance import ContainerInstanceManagementClient
     from azure.mgmt.loganalytics import LogAnalyticsManagementClient
     import azure.mgmt.loganalytics.models as LogAnalyticsModels
+    from azure.mgmt.eventhub import EventHubManagementClient
 except ImportError as exc:
     HAS_AZURE_EXC = traceback.format_exc()
     HAS_AZURE = False
@@ -308,6 +310,7 @@ class AzureRMModuleBase(object):
         self._resource = None
         self._log_analytics_client = None
         self._servicebus_client = None
+        self._eventhub_client = None
 
         self.check_mode = self.module.check_mode
         self.api_profile = self.module.params.get('api_profile')
@@ -1004,6 +1007,20 @@ class AzureRMModuleBase(object):
     @property
     def servicebus_models(self):
         return ServicebusModel
+
+    @property
+    def eventhub_client(self):
+        self.log('Getting eventhub client')
+        if not self._eventhub_client:
+            self._eventhub_client = self.get_mgmt_svc_client(EventHubManagementClient,
+                                                             base_url=self._cloud_environment.endpoints.resource_manager,
+                                                             api_version='2017-04-01')
+        return self._eventhub_client
+
+    @property
+    def eventhub_models(self):
+        self.log("Getting eventhub models...")
+        return EventHubManagementClient.models('2017-04-01')
 
 
 class AzureRMAuthException(Exception):
