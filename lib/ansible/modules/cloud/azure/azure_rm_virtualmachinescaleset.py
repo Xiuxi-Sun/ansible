@@ -691,6 +691,7 @@ class AzureRMVirtualMachineScaleSet(AzureRMModuleBase):
                             changed = True
 
                 if self.custom_data:
+                    # It seems that vmss_dict['properties']['virtualMachineProfile']['osProfile'] doesn't contain customData
                     if self.custom_data != vmss_dict['properties']['virtualMachineProfile']['osProfile'].get('customData'):
                         differences.append('custom_data')
                         changed = True
