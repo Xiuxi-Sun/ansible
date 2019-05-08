@@ -949,7 +949,6 @@ class AzureRMVirtualMachineScaleSet(AzureRMModuleBase):
         if backend_pools is None:
             return results
         for resource in backend_pools:
-            pdb.set_trace()
             if resource.name == name:
                 results.append(resource)
         if len(results) == 0:
