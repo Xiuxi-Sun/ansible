@@ -1,6 +1,6 @@
 #!/usr/bin/python
 #
-# Copyright (C) 2019 Azure DevOps Tooling Team
+# Copyright (C) 2019 Junyi Yi (@JunyiYi)
 #
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -76,19 +76,21 @@ extends_documentation_fragment:
     - azure
     
 author:
-    - "Azure DevOps Tooling Team"
+    - "Junyi Yi (@JunyiYi)"
 '''
 
+EXAMPLES = '''
+  - name: Create Batch Application
+    azure_rm_batchapplication:
+        resource_group: MyResGroup
+        name: mybatchapplication
+        account_name: mybatchaccount
+'''
 
 RETURN = '''
 id:
     description:
     - The ID of the resource.
-    returned: always
-    type: str
-etag:
-    description:
-    - The ETag of the resource, used for concurrency statements.
     returned: always
     type: str
 '''
@@ -219,8 +221,7 @@ class AzureRMBatchApplication(AzureRMModuleBaseExt):
 
         if self.state == 'present':
             self.results.update({
-                'id': response.get('id', None),
-                'etag': response.get('etag', None)
+                'id': response.get('id', None)
             })
         return self.results
 
